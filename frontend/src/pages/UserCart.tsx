@@ -50,8 +50,11 @@ const UserCart = () => {
       addToCart(user.id, productId, quantity);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries(queryKey);
-      await queryClient.invalidateQueries("allUsers");
+      await queryClient.invalidateQueries({ queryKey, exact: false });
+      await queryClient.invalidateQueries({
+        queryKey: "allUsers",
+        exact: false,
+      });
       await refetchCart();
       toast({ description: "Product added to cart" });
     },
@@ -67,8 +70,11 @@ const UserCart = () => {
       removeFromCart(user.id, productId);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries(queryKey);
-      await queryClient.invalidateQueries("allUsers");
+      await queryClient.invalidateQueries({ queryKey, exact: false });
+      await queryClient.invalidateQueries({
+        queryKey: "allUsers",
+        exact: false,
+      });
       await refetchCart();
       toast({ description: "Product removed from cart" });
     },
@@ -90,8 +96,11 @@ const UserCart = () => {
       updateCartItemQuantity(user.id, productId, quantity);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries(queryKey);
-      await queryClient.invalidateQueries("allUsers");
+      await queryClient.invalidateQueries({ queryKey, exact: false });
+      await queryClient.invalidateQueries({
+        queryKey: "allUsers",
+        exact: false,
+      });
       await refetchCart();
       toast({ description: "Cart item quantity updated" });
     },
@@ -100,8 +109,11 @@ const UserCart = () => {
     mutationKey: `checkout-${user?.id}`,
     mutationFn: async () => checkout(user?.id),
     onSuccess: async () => {
-      await queryClient.invalidateQueries(queryKey);
-      await queryClient.invalidateQueries("allUsers");
+      await queryClient.invalidateQueries({ queryKey, exact: false });
+      await queryClient.invalidateQueries({
+        queryKey: "allUsers",
+        exact: false,
+      });
       await refetchCart();
       toast({ description: "Cart checked out" });
     },

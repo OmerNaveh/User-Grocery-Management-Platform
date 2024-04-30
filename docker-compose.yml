@@ -4,7 +4,6 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
     depends_on:
       - db
     environment:
@@ -29,5 +28,15 @@ services:
       POSTGRES_PORT: ${POSTGRES_PORT:-5432} # Default port is 5432 if not provided
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      REACT_APP_SERVER_PORT: ${PORT:-3001}
+    ports:
+      - "3000:3000"
     env_file:
       - .env

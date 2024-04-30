@@ -44,7 +44,10 @@ const EditUserModal = ({ user, refetch }: props) => {
       editUser(user.id, requestBody);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries("allUsers");
+      await queryClient.invalidateQueries({
+        queryKey: "allUsers",
+        exact: false,
+      });
       await refetch();
       setIsOpen(false);
       toast({ description: "User updated successfully" });
