@@ -21,6 +21,11 @@ export class UserController {
     return this.userService.update(id, body);
   }
 
+  @Post('auth')
+  async auth(@Body() body: { fullName: string }) {
+    return this.userService.auth(body);
+  }
+
   @Post()
   async create(@Body() body: UpdateUserDto) {
     return this.userService.create(body);

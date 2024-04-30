@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UpdateUserDto } from './user.types';
 import { validateDto } from 'src/helpers/validation';
+import { normalizeAllUsersResponse } from 'src/helpers/normalize';
 
 @Injectable()
 export class UserService {
@@ -13,7 +18,11 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+    const users = await this.usersRepository.find({
+      relations: ['carts', 'carts.items', 'carts.items.product'],
+      order: { id: 'ASC' },
+    });
+    return normalizeAllUsersResponse(users);
   }
 
   async findOne(id: string): Promise<User> {
@@ -38,12 +47,36 @@ export class UserService {
 
     this.usersRepository.merge(userToUpdate, body);
 
-    return await this.usersRepository.save(userToUpdate);
+    await this.usersRepository.save(userToUpdate);
+    return this.usersRepository.findOne({ where: { id: Number(id) } });
   }
 
   async create(body: UpdateUserDto): Promise<User> {
     validateDto(body);
+    // Find if user with the same name already exists
+    const user = await this.usersRepository.findOne({
+      where: { fullName: body.fullName },
+    });
+    if (user) {
+      throw new BadRequestException(
+        `User with name ${body.fullName} already exists`,
+      );
+    }
     const newUser = this.usersRepository.create(body);
-    return await this.usersRepository.save(newUser);
+    await this.usersRepository.save(newUser);
+    return newUser;
+  }
+
+  async auth(body: { fullName: string }): Promise<User> {
+    if (!body.fullName) {
+      throw new BadRequestException(`Must provide a full name`);
+    }
+    const user = await this.usersRepository.findOne({
+      where: { fullName: body.fullName },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with name ${body.fullName} not found`);
+    }
+    return user;
   }
 }

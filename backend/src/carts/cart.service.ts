@@ -23,12 +23,20 @@ export class CartService {
 
   async getCart(user: User): Promise<CartResponse> {
     const cart = await this.cartRepository.findOne({
-      where: { user, isSettled: false },
+      where: { isSettled: false, user },
       relations: ['items', 'items.product'],
+      order: {
+        items: {
+          id: 'ASC',
+        },
+      },
     });
-
     if (!cart) {
-      throw new NotFoundException('Cart not found');
+      // Create a new cart if it doesn't exist
+      const newCart = new Cart();
+      newCart.user = user;
+      await this.cartRepository.save(newCart);
+      return normalizeCartResponse(newCart);
     }
     return normalizeCartResponse(cart);
   }
@@ -109,12 +117,14 @@ export class CartService {
   }
 
   async checkout(user: User): Promise<void> {
-    const cart = await this.cartRepository.findOne({ where: { user } });
+    const cart = await this.cartRepository.findOne({
+      where: { isSettled: false, user },
+    });
     if (!cart) {
       throw new NotFoundException('Cart not found');
     }
+    await this.cartRepository.update(cart.id, { isSettled: true });
 
-    cart.isSettled = true;
-    await this.cartRepository.save(cart);
+    return null;
   }
 }
