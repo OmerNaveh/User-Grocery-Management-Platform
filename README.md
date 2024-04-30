@@ -45,7 +45,7 @@ Welcome, this repo is for a web application built with React and Node.js, design
    ```bash
    cd User-Grocery-Management-Platform
    ```
-4. Create a `.env` file in the `backend` directory and add the following environment variables:
+4. Create a `.env` file in the main directory and add the following environment variables:
    ```env
    POSTGRES_USER=Your postgres user name || postgres
     POSTGRES_PASSWORD=Your postgres user name || root
